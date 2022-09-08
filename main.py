@@ -1,78 +1,86 @@
-##
+"""
 
+  """
 
 from githubdata import GithubData
-from mirutil.df_utils import read_data_according_to_type as rdata
 from mirutil.df_utils import save_df_as_a_nice_xl as snxl
 
 
-rp_url = 'https://github.com/imahdimir/d-TSETMC-ID-2-FirmTicker-map'
-mb2ft_url = 'https://github.com/imahdimir/d-multi-BaseTickers-2-same-FirmTicker-map'
+class GDUrl :
+    cur = 'https://github.com/imahdimir/g-d-TSETMC_ID-2-FirmTicker'
+    trg = 'https://github.com/imahdimir/d-TSETMC_ID-2-FirmTicker'
+    mb2f = 'https://github.com/imahdimir/d-multi-BaseTickers-2-same-FirmTicker-map'
 
-tid = 'TSETMC_ID'
-ftic = 'FirmTicker'
+gu = GDUrl()
 
+class ColName :
+    tid = 'TSETMC_ID'
+    ftic = 'FirmTicker'
+
+c = ColName()
 
 def main() :
-  pass
+    pass
 
-  ##
-  rp = GithubData(rp_url)
-  rp.clone()
+    ##
 
-  ##
-  fp = rp.data_filepath
-  df = rdata(fp)
+    gd_trg = GithubData(gu.trg)
+    gd_trg.overwriting_clone()
+    ##
+    dft = gd_trg.read_data()
+    ##
+    dft = dft.astype(str)
+    ##
+    dft = dft.drop_duplicates()
+    assert dft[c.tid].is_unique
 
-  ##
-  df = df.drop_duplicates()
-  assert df[tid].is_unique
+    ##
+    msk = dft[c.ftic].str.contains('پذيره')
+    df1 = dft[msk]
+    assert df1.empty
 
-  ##
-  msk = df[ftic].str.contains('پذيره')
-  df1 = df[msk]
-  assert df1.empty
+    ##
 
-  ##
-  rp_m2f = GithubData(mb2ft_url)
-  rp_m2f.clone()
+    gd_mb2f = GithubData(gu.mb2f)
+    gd_mb2f.overwriting_clone()
+    ##
+    dfz = gd_mb2f.read_data()
+    ##
+    dfz = dfz.astype(str)
+    ##
+    dfz.set_index(c.tid , inplace = True)
+    ##
 
-  ##
-  dfzfp = rp_m2f.data_filepath
-  dfz = rdata(dfzfp)
-  dfz[tid] = dfz[tid].astype(str)
-  dfz = dfz.set_index(tid)
+    dft['ft'] = dft[c.tid].map(dfz[c.ftic])
+    ##
+    msk = dft['ft'].notna()
+    df1 = dft[msk]
+    ##
+    dft.loc[msk , c.ftic] = dft['ft']
+    ##
+    dft = dft[[c.tid , c.ftic]]
+    ##
 
-  ##
-  df['ft'] = df[tid].map(dfz[ftic])
-  msk = df['ft'].notna()
-  df1 = df[msk]
-  df.loc[msk , ftic] = df['ft']
+    dft.sort_values(c.ftic , inplace = True)
+    ##
+    dftp = gd_trg.data_fp
+    snxl(dft , dftp)
+    ##
+    msg = 'governed by: '
+    msg += gu.cur
+    ##
 
-  ##
-  df = df[[tid , ftic]]
+    gd_trg.commit_and_push(msg)
 
-  ##
-  df = df.sort_values(ftic)
+    ##
 
-  ##
-  snxl(df , fp)
+    gd_trg.rmdir()
+    gd_mb2f.rmdir()
 
-  ##
-  cur_rp_url = 'https://github.com/' + rp.usr + '/gov-' + rp.repo_name
-  ##
-  msg = 'checked'
-  msg += ' by: ' + cur_rp_url
-
-  rp.commit_push(msg)
-
-  ##
-
-  rp.rmdir()
-  rp_m2f.rmdir()
-
+    ##
 
 ##
-
+if __name__ == '__main__' :
+    main()
 
 ##
