@@ -9,7 +9,7 @@ from mirutil.df_utils import save_df_as_a_nice_xl as snxl
 class GDUrl :
     cur = 'https://github.com/imahdimir/g-d-TSETMC_ID-2-FirmTicker'
     trg = 'https://github.com/imahdimir/d-TSETMC_ID-2-FirmTicker'
-    mb2f = 'https://github.com/imahdimir/d-multi-BaseTickers-2-same-FirmTicker-map'
+    mb2f = 'https://github.com/imahdimir/d-multi-BaseTickers-2-same-FirmTicker'
 
 gu = GDUrl()
 
