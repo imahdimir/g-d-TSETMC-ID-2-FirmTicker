@@ -1,2 +1,0 @@
-# python 3.10.5 for arm64
-# arm64 Apple M1
